@@ -349,18 +349,18 @@ extern "C" fn init() {
 extern "C" fn state() {
     let token = unsafe {
         FUNGIBLE_TOKEN
-            .take()
+            .as_ref()
             .expect("Unexpected: Error in getting contract state")
     };
     let query: Query = msg::load().expect("Unable to decode the query");
     let reply = match query {
-        Query::Name => QueryReply::Name(token.name),
-        Query::Symbol => QueryReply::Symbol(token.symbol),
-        Query::Decimals => QueryReply::Decimals(token.decimals),
-        Query::Description => QueryReply::Description(token.description),
-        Query::ExternalLinks => QueryReply::ExternalLinks(token.external_links),
-        Query::CurrentSupply => QueryReply::CurrentSupply(token.current_supply),
-        Query::TotalSupply => QueryReply::TotalSupply(token.total_supply),
+        Query::Name => QueryReply::Name(token.name.clone()),
+        Query::Symbol => QueryReply::Symbol(token.symbol.clone()),
+        Query::Decimals => QueryReply::Decimals(token.decimals.clone()),
+        Query::Description => QueryReply::Description(token.description.clone()),
+        Query::ExternalLinks => QueryReply::ExternalLinks(token.external_links.clone()),
+        Query::CurrentSupply => QueryReply::CurrentSupply(token.current_supply.clone()),
+        Query::TotalSupply => QueryReply::TotalSupply(token.total_supply.clone()),
         Query::BalanceOf(account) => {
             let balance = if let Some(balance) = token.balances.get(&account) {
                 *balance
@@ -384,7 +384,7 @@ extern "C" fn state() {
             };
             QueryReply::AllowanceOfAccount(allowance)
         }
-        Query::Admins => QueryReply::Admins(token.admins),
+        Query::Admins => QueryReply::Admins(token.admins.clone()),
         Query::GetTxValidityTime { account, tx_id } => {
             let valid_until = token.tx_ids.get(&(account, tx_id)).unwrap_or(&0);
             QueryReply::TxValidityTime(*valid_until)
